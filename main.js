@@ -7,20 +7,29 @@ window.addEventListener("DOMContentLoaded", () => {
     mensagem.innerText = `Essas flores são para você, ${nome} 💜
     Só que perto de alguém tão linda, elas viram detalhe. Sábado eu compenso isso direito, gatinha.`;
 
-    const audio = new Audio("music.mpeg");
+    const audio = new Audio("music.mp3");
     audio.loop = true;
     audio.volume = 0.5;
 
-    // Requer interação do usuário em alguns navegadores, por isso é ativado ao clicar
-    document.body.addEventListener("click", () => {
-        if (audio.paused) {
-            audio.play().catch(() => {});
-        }
+    // Para tentar autoplay em navegadores restritivos, começa mudo.
+    audio.muted = true;
+    audio.play().then(() => {
+        // se for permitido, reativa o som.
+        audio.muted = false;
+    }).catch((err) => {
+        console.warn("Autoplay bloqueado inicialmente, aguardando interação:", err);
     });
 
-    // Se o navegador permitir autoplay, tenta já iniciar.
-    audio.play().catch(() => {
-        // Autoplay bloqueado, aguardando clique.
+    // tenta tocar e desmutar no primeiro clique do usuário, se necessário.
+    document.body.addEventListener("click", () => {
+        if (audio.paused) {
+            audio.play().catch(() => {
+                // se ainda não for possível, mantém aguardando.
+            });
+        }
+        if (audio.muted) {
+            audio.muted = false;
+        }
     });
 
     document.querySelectorAll(".flower").forEach(flor => {
